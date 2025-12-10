@@ -10,10 +10,8 @@ An IoT-based smart irrigation system that monitors soil moisture and automatical
 - [Usage](#-usage)
 - [Project Structure](#-project-structure)
 - [Security](#-security-features)
-- [Data Flow](#-data-flow)
-- [Testing](#-testing)
-- [Troubleshooting](#-troubleshooting)
-- [License](#-license)
+- [Data Flow](#-data-flow-architecture)
+
 
 ## 🚀 Features
 
@@ -157,4 +155,173 @@ curl -X POST "https://ps.pndsn.com/v2/auth/grant/sub-key/YOUR_SUB_KEY" \
 -d "auth=irrigation_device" \
 -d "read=true" \
 -d "write=false" \
--d "ttl=1440"   
+-d "ttl=1440"
+```
+## 🔧 Installation
+
+### 1. Clone Repository
+git clone https://github.com/YOUR_USERNAME/smart-plant-irrigation.git
+cd smart-plant-irrigation
+
+### 2. Hardware Setup
+Follow the wiring diagram above to connect all components.
+
+### 3. Software Setup
+## Update system
+sudo apt update && sudo apt upgrade -y
+
+## Install Python and tools
+sudo apt install python3-pip python3-venv git
+
+## Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+## Install Python packages
+pip install pubnub RPi.GPIO python-dotenv
+
+## Install Node.js (for web dashboard)
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+
+## Install Node dependencies
+cd web-dashboard
+npm install
+
+### 4. Configuration
+ Copy example config: cp iot-device/config.example.json iot-device/config.json
+
+ Edit iot-device/config.json:
+
+{
+  "pubnub": {
+    "publish_key": "pub-c-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "subscribe_key": "sub-c-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "secret_key": "sec-c-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "user_id": "plant_irrigation_system_001"
+  },
+  "device": {
+    "moisture_threshold": 30,
+    "pump_duration": 3000,
+    "check_interval": 60,
+    "sensor_pin": 17,
+    "relay_pin": 27
+  },
+  "channels": {
+    "moisture_data": "plant-moisture-data",
+    "pump_commands": "plant-pump-commands"
+  }
+}
+
+### Enable GPIO Access
+# Add user to GPIO group
+sudo usermod -a -G gpio $USER
+
+# Reboot for changes to take effect
+sudo reboot
+
+### 🚀 Usage
+
+ Running the IoT Device:
+cd iot-device
+source ../venv/bin/activate
+python3 main.py
+
+ Running the Web Dashboard:
+cd web-dashboard
+npm start
+ Access at http://localhost:3000
+
+### Testing Hardware
+##  Test sensor reading
+python3 tests/test_sensor.py
+
+ ## Test pump activation
+python3 tests/test_pump.py --duration 2000
+
+## Test PubNub connection
+python3 tests/test_pubnub.py
+
+## 📊 Project Structure
+smart-plant-irrigation/
+├── iot-device/           #### Raspberry Pi code
+│   ├── main.py          #### Main control logic
+│   ├── sensor.py        #### Soil sensor reading
+│   ├── pump.py          #### Pump control logic
+│   ├── pubnub_client.py #### PubNub communication
+│   └── config.json      #### Configuration (DO NOT COMMIT)
+├── web-dashboard/       #### React dashboard
+│   ├── src/
+│   │   ├── components/
+│   │   ├── services/
+│   │   └── App.js
+│   ├── package.json
+│   └── README.md
+├── docs/
+│   ├── hardware_setup.md
+│   └── wiring_diagrams/
+├── schematics/          #### Fritzing diagrams
+├── tests/               #### Hardware/software tests
+├── .gitignore
+├── LICENSE
+├── README.md
+└── requirements.txt
+
+## 🔒 Security Features
+1. PubNub PAM (Access Manager)
+Device-specific auth keys
+
+Channel-level permissions
+
+Time-limited access tokens
+
+Revocable credentials
+
+2. Hardware Security
+Separate power supplies
+
+Relay isolation
+
+Fuse protection
+
+Waterproof enclosures
+
+3. Software Security
+Environment variables for secrets
+
+Input validation
+
+Command sanitization
+
+Regular security updates
+
+### 📈 Data Flow Architecture
+
+┌─────────────────┐    PUBLISH    ┌─────────────────┐    HTTP     ┌─────────────────┐
+│   IoT DEVICE    ├──────────────►│    PUBNUB       ├────────────►│  WEB DASHBOARD  │
+│  (Raspberry Pi) │   Moisture    │    CLOUD        │   Display   │   (User View)   │
+│                 │   Readings    │                 │   Data      │                 │
+│  Sensor → GPIO  │               │  Channels:      │             │  Charts & UI    │
+│  Pump ← Relay   │               │  - plant-       │             │  Controls       │
+└────────┬────────┘               │    moisture-data│             └────────┬────────┘
+         │                        │  - plant-       │                      │
+         │      SUBSCRIBE         │    pump-commands│              User Action
+         └────────────────────────┘                 │            (Click "Water Now")
+                    Pump Commands   └─────────────────┘                      │
+                                                                             ▼
+                                                                   ┌─────────────────┐
+                                                                   │    PUBNUB       │
+                                                                   │    CLOUD        │
+                                                                   │                 │
+                                                                   │  Command:       │
+                                                                   │  {"command":    │
+                                                                   │   "WATER_NOW",  │
+                                                                   │   "duration":   │
+                                                                   │    3000}        │
+                                                                   └─────────────────┘
+
+                                                                   
+
+
+
+
