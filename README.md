@@ -326,6 +326,20 @@ Regular security updates
                                                                    │    3000}        │
                                                                    └─────────────────┘
 
+graph LR
+    A[🌱 Soil Sensor] --> B[🖥️ Raspberry Pi]
+    B --> C[📡 PubNub Cloud]
+    C --> D[💻 Web Dashboard]
+    D --> E[👤 User Action]
+    E --> C
+    C --> B
+    B --> F[💧 Water Pump]
+    
+    style A fill:#90EE90
+    style B fill:#FFB6C1
+    style C fill:#ADD8E6
+    style D fill:#FFD700
+    style F fill:#87CEEB
   ```                                                                 
 
 
