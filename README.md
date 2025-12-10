@@ -40,7 +40,7 @@ An IoT-based smart irrigation system that monitors soil moisture and automatical
 | Optional: Project Box | 1 | Enclosure | [RS Components](https://ie.rs-online.com/web/p/junction-boxes/7455289) |
 
 ### Wiring Diagram
-
+```
 ┌─────────────────────────────────────────────────────────────┐
 │ RASPBERRY PI 4 │
 │ │
@@ -71,7 +71,7 @@ An IoT-based smart irrigation system that monitors soil moisture and automatical
 │ + ──────────┘
 │ - ──────────────────────────────┐
 └──────────────────────────────────┘
-
+```
 
 ### Step-by-Step Wiring Instructions
 
@@ -167,6 +167,7 @@ cd smart-plant-irrigation
 Follow the wiring diagram above to connect all components.
 
 ### 3. Software Setup
+```
 ## Update system
 sudo apt update && sudo apt upgrade -y
 
@@ -187,12 +188,12 @@ sudo apt install -y nodejs
 ## Install Node dependencies
 cd web-dashboard
 npm install
-
+```
 ### 4. Configuration
- Copy example config: cp iot-device/config.example.json iot-device/config.json
+ Copy example config: `cp iot-device/config.example.json iot-device/config.json`
 
  Edit iot-device/config.json:
-
+```
 {
   "pubnub": {
     "publish_key": "pub-c-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -212,7 +213,7 @@ npm install
     "pump_commands": "plant-pump-commands"
   }
 }
-
+```
 ### Enable GPIO Access
 # Add user to GPIO group
 sudo usermod -a -G gpio $USER
@@ -221,28 +222,30 @@ sudo usermod -a -G gpio $USER
 sudo reboot
 
 ### 🚀 Usage
-
- Running the IoT Device:
+```
+# Running the IoT Device:
 cd iot-device
 source ../venv/bin/activate
 python3 main.py
 
- Running the Web Dashboard:
+# Running the Web Dashboard:
 cd web-dashboard
 npm start
- Access at http://localhost:3000
+# Access at http://localhost:3000
 
-### Testing Hardware
-##  Test sensor reading
+# Testing Hardware
+# Test sensor reading
 python3 tests/test_sensor.py
 
- ## Test pump activation
+# Test pump activation
 python3 tests/test_pump.py --duration 2000
 
-## Test PubNub connection
+# Test PubNub connection
 python3 tests/test_pubnub.py
+```
 
-## 📊 Project Structure
+### 📊 Project Structure
+```
 smart-plant-irrigation/
 ├── iot-device/           #### Raspberry Pi code
 │   ├── main.py          #### Main control logic
@@ -266,8 +269,9 @@ smart-plant-irrigation/
 ├── LICENSE
 ├── README.md
 └── requirements.txt
+```
 
-## 🔒 Security Features
+### 🔒 Security Features
 1. PubNub PAM (Access Manager)
 Device-specific auth keys
 
@@ -295,8 +299,10 @@ Command sanitization
 
 Regular security updates
 
-### 📈 Data Flow Architecture
 
+
+### 📈 Data Flow Architecture
+```
 ┌─────────────────┐    PUBLISH    ┌─────────────────┐    HTTP     ┌─────────────────┐
 │   IoT DEVICE    ├──────────────►│    PUBNUB       ├────────────►│  WEB DASHBOARD  │
 │  (Raspberry Pi) │   Moisture    │    CLOUD        │   Display   │   (User View)   │
@@ -320,7 +326,7 @@ Regular security updates
                                                                    │    3000}        │
                                                                    └─────────────────┘
 
-                                                                   
+  ```                                                                 
 
 
 
