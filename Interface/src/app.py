@@ -3,6 +3,8 @@ from flask import Flask, render_template, redirect, request, session, flash, url
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
+import google.generativeai as genai
+from Interface.src.ai_analyzer import PlantCareAIAnalyzer
 
 load_dotenv()
 app = Flask(__name__)
@@ -18,6 +20,13 @@ app.config.update(
 )
 mysql = MySQL(app)
 
+# Configure Gemini
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    print("WARNING: GEMINI_API_KEY not found in .env file!")
+
+genai.configure(api_key=api_key)
+ai_model = genai.GenerativeModel('gemini-pro')
 
 # Helper for login protection
 def login_required(f):
@@ -30,7 +39,6 @@ def login_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
-
 
 @app.route("/")
 def index():
@@ -123,6 +131,70 @@ def dashboard():
 
     return render_template("dashboard.html", plants=user_plants)
 
+
+@app.route("/plant/<int:plant_id>")
+@login_required
+def plant_detail(plant_id):
+    cur = mysql.connection.cursor()
+    # Fetch plant details
+    cur.execute("SELECT * FROM plants WHERE id = %s AND user_id = %s", (plant_id, session['user_id']))
+    plant = cur.fetchone()
+
+    if not plant:
+        flash("Plant not found.", "error")
+        return redirect(url_for('dashboard'))
+
+    # Fetch latest moisture reading
+    cur.execute("""
+                SELECT moisture_level, recorded_at
+                FROM moisture_readings
+                WHERE plant_id = %s
+                ORDER BY recorded_at DESC LIMIT 1
+                """, (plant_id,))
+    last_reading = cur.fetchone()
+
+    cur.close()
+    return render_template("plant_detail.html", plant=plant, last_reading=last_reading)
+
+
+# Initialize analyzer globally
+analyzer = PlantCareAIAnalyzer()
+
+@app.route("/api/ai-tips/<int:plant_id>")
+@login_required
+def get_ai_tips(plant_id):
+    cur = mysql.connection.cursor()
+    # Fetch plant data and join with latest moisture reading
+    cur.execute("""
+                SELECT p.*, m.moisture_level as last_moisture
+                FROM plants p
+                         LEFT JOIN moisture_readings m ON p.id = m.plant_id
+                WHERE p.id = %s
+                  AND p.user_id = %s
+                ORDER BY m.recorded_at DESC LIMIT 1
+                """, (plant_id, session['user_id']))
+
+    plant_data = cur.fetchone()
+    cur.close()
+
+    if not plant_data:
+        return {"error": "Plant not found"}, 404
+
+    # The analyzer now handles both success and failure cases safely
+    advice = analyzer.get_care_advice(plant_data)
+    return advice
+
+@app.route("/update-plant-photo/<int:plant_id>", methods=["POST"])
+def update_photo(plant_id):
+    if 'photo' not in request.files: return redirect(url_for('dashboard'))
+    file = request.files['photo']
+    filename = f"plant_{plant_id}.jpg"
+    file.save(os.path.join('static/uploads', filename))
+
+    cur = mysql.connection.cursor()
+    cur.execute("UPDATE plants SET image_url = %s WHERE id = %s", (filename, plant_id))
+    mysql.connection.commit()
+    return redirect(url_for('dashboard'))
 
 @app.route("/notifications")
 @login_required

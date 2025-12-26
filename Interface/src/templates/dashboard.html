@@ -1,48 +1,67 @@
 {% extends "layout.html" %}
 {% block body %}
-<div class="app-container">
-    {% include 'components/menu.html' %}
-    <main class="main-content">
-        <header class="page-header">
-            <h1 class="text-4xl font-extrabold text-white">Irrigation Dashboard</h1>
-            <p class="text-text-muted">Real-time soil moisture and pump control.</p>
-        </header>
+<div class="mt-8">
+    <h1 class="text-3xl font-bold mb-2">My Garden</h1>
+    <p class="text-gray-400 mb-6">System: <span class="text-green-400">Optimal <i class="fas fa-check-circle"></i></span></p>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            {% for plant in plants %}
-            <div class="card bg-secondary p-6 rounded-xl border border-border">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold text-white">{{ plant.name }}</h3>
-                    <span class="px-3 py-1 bg-green-900/40 text-green-400 rounded-full text-xs">Active</span>
-                </div>
-                
-                <div class="text-center my-6">
-                    <div class="text-4xl font-black text-blue-400">{{ plant.last_moisture or '0' }}%</div>
-                    <p class="text-text-muted text-sm">Soil Moisture</p>
-                </div>
-
-                <div class="flex gap-2">
-                    <button onclick="triggerPump({{ plant.id }})" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">
-                        Water Now
-                    </button>
-                    <a href="/plant/{{ plant.id }}" class="p-2 bg-tertiary text-white rounded-lg">
-                        <i class="fas fa-cog"></i>
-                    </a>
+    <div class="garden-row">
+        {% for plant in plants %}
+        <div class="plant-card" onclick="window.location.href='/plant/{{ plant.id }}'">
+            <img src="{{ url_for('static', filename='uploads/' + (plant.image_url or 'default.jpg')) }}" class="plant-img">
+            <div class="p-5">
+                <h3 class="text-xl font-bold">{{ plant.name }}</h3>
+                <div class="flex justify-between items-center mt-4">
+                    <span class="text-blue-400 font-black">{{ plant.last_moisture or 0 }}%</span>
+                    <div class="h-1 w-24 bg-gray-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500" style="width: {{ plant.last_moisture or 0 }}%"></div>
+                    </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
-    </main>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="plant-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-[2000] p-6">
+    <div class="glass-card max-w-lg mx-auto mt-10 p-8">
+        <div class="flex justify-between mb-6">
+            <h2 id="modal-title" class="text-2xl font-bold">Plant Settings</h2>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+        </div>
+
+        <form id="photo-form" method="POST" enctype="multipart/form-data" class="mb-6">
+            <label class="block text-sm text-gray-400 mb-2">Change Photo</label>
+            <input type="file" name="photo" onchange="this.form.submit()" class="text-xs">
+        </form>
+
+        <div class="space-y-6">
+            <div>
+                <label class="block text-sm text-gray-400 mb-2">Auto-Watering Threshold</label>
+                <input type="range" class="w-full accent-blue-500" min="0" max="100">
+            </div>
+
+            <button class="w-full py-3 bg-blue-600 rounded-xl font-bold">Manual Water Now</button>
+
+            <div class="mt-8 p-4 bg-white/5 rounded-xl">
+                <h4 class="text-xs font-bold text-green-400 uppercase mb-2">AI Care Tips (Gemini)</h4>
+                <div id="ai-tips" class="text-sm text-gray-300 italic">Generating suggestions...</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    function triggerPump(plantId) {
-        fetch(`/api/hardware/pump/${plantId}`, {
-            method: 'POST',
-            body: JSON.stringify({ state: true }),
-            headers: { 'Content-Type': 'application/json' }
-        }).then(res => res.json())
-          .then(data => alert("Pump Command Sent!"));
-    }
+function openPlantDetail(id) {
+    document.getElementById('plant-modal').classList.remove('hidden');
+    document.getElementById('photo-form').action = "/update-plant-photo/" + id;
+
+    // Fetch AI Tips
+    fetch('/api/ai-tips/' + id)
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('ai-tips').innerText = data.tips;
+        });
+}
+function closeModal() { document.getElementById('plant-modal').classList.add('hidden'); }
 </script>
 {% endblock %}

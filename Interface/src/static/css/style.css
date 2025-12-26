@@ -1,73 +1,116 @@
-/* Additional custom styles */
-
-/* Smooth transitions */
-* {
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+:root {
+    --glass: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --accent-blue: #00d2ff;
+    --accent-green: #00ff88;
+    --bg-dark: #0b0e14;
 }
 
-/* Custom button styles */
-.btn-gradient {
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-    border: none;
-    color: white;
+body {
+    background: radial-gradient(circle at top right, #1a1f2b, var(--bg-dark));
+    color: #e6edf3;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
 }
 
-.btn-gradient:hover {
-    background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
-    color: white;
+/* Horizontal Card Container */
+.garden-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 1.5rem;
+    padding: 1rem 0 2rem 0;
+    scrollbar-width: none; /* Firefox */
+}
+.garden-row::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+/* Clickable Glass Card */
+.plant-card {
+    min-width: 300px;
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
 }
 
-/* Card hover effects */
-.hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+.plant-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--accent-blue);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
 }
 
-.hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+.plant-img {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+    border-bottom: 1px solid var(--glass-border);
 }
 
-/* Custom scrollbar for specific elements */
-.custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: #28a745 rgba(255, 255, 255, 0.1);
+/* Bottom Nav Refinement */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(11, 14, 20, 0.9);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-around;
+    padding: 1rem;
+    z-index: 1000;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #8b949e;
+    font-size: 0.75rem;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
+.nav-item.active { color: var(--accent-blue); }
+
+.slick-glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #28a745;
-    border-radius: 3px;
+.ai-content-compact {
+    line-height: 1.5;
+    font-size: 0.9rem;
+    color: #cbd5e0;
+    white-space: pre-line;
+    padding: 1rem;
+    max-height: 300px; /* Limits excessive scrolling */
+    overflow-y: auto;
 }
 
-/* Loading animations */
-.spinner-grow-custom {
-    width: 3rem;
-    height: 3rem;
+/* Fluid water-drop indicator */
+.status-pill {
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(58, 123, 213, 0.1));
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    color: #00d2ff;
 }
 
-/* Text gradient effects */
-.text-gradient {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+/* Smooth Accordion */
+.accordion-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+    opacity: 0;
 }
 
-/* Pulse animation for alerts */
-@keyframes gentle-pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.8; }
-    100% { opacity: 1; }
-}
-
-.pulse-gentle {
-    animation: gentle-pulse 2s infinite;
+.accordion-panel.open {
+    max-height: 500px;
+    opacity: 1;
 }
