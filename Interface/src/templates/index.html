@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="min-h-screen flex items-center justify-center bg-primary">
+    <div class="text-center">
+        <h1 class="text-5xl font-bold text-white mb-6">🌱 Smart Irrigation</h1>
+        <p class="text-text-secondary mb-8 text-xl">Intelligent water management for your greenhouse.</p>
+        <div class="space-x-4">
+            <a href="{{ url_for('login') }}" class="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">Login</a>
+            <a href="{{ url_for('register') }}" class="px-8 py-3 border border-blue-600 text-blue-400 rounded-lg font-semibold hover:bg-blue-600/10">Register</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

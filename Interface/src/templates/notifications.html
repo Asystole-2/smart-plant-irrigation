@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="app-container">
+    {% include 'components/menu.html' %}
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1 class="text-4xl font-extrabold text-text-primary">Notifications</h1>
+            <p class="text-text-muted">Stay updated on your plant irrigation status.</p>
+        </header>
+
+        <section class="mt-8">
+            {% if notifications %}
+                <div class="space-y-4">
+                    {% for n in notifications %}
+                        <div class="card bg-secondary p-4 rounded-lg border-l-4 {% if n.type == 'warning' %}border-yellow-500{% elif n.type == 'error' %}border-red-500{% elif n.type == 'success' %}border-green-500{% else %}border-blue-500{% endif %}">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-lg text-text-primary">{{ n.title }}</h3>
+                                    <p class="text-text-secondary mt-1">{{ n.message }}</p>
+                                    <span class="text-xs text-text-muted mt-2 block">{{ n.created_at }}</span>
+                                </div>
+                                {% if not n.is_read %}
+                                    <span class="bg-blue-600 h-2 w-2 rounded-full"></span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="card bg-secondary p-12 text-center rounded-xl border border-border">
+                    <i class="fas fa-bell-slash text-4xl text-text-muted mb-4"></i>
+                    <h3 class="text-xl font-bold text-text-primary">All caught up!</h3>
+                    <p class="text-text-muted">You have no new notifications.</p>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+</div>
+{% endblock %}

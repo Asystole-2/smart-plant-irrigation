@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="color-scheme" content="light dark"/>
+    <title>Smart Irrigation System</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.jpg') }}"/>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        (function () {
+            const storedTheme = localStorage.getItem("theme");
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            const theme = storedTheme || (prefersDark ? "dark" : "light");
+            document.documentElement.setAttribute("data-theme", theme);
+
+            const style = document.createElement("style");
+            style.textContent = `
+          :root {
+            --bg-primary-light: #ffffff;
+            --bg-secondary-light: #f8fafc;
+            --bg-tertiary-light: #e2e8f0;
+            --text-primary-light: #1a202c;
+            --border-color-light: #cbd5e0;
+
+            --bg-primary-dark: #0d1117;
+            --bg-secondary-dark: #1f2937;
+            --bg-tertiary-dark: #374151;
+            --text-primary-dark: #ffffff;
+            --border-color-dark: #374151;
+          }
+
+          [data-theme="light"] {
+            --bg-primary: var(--bg-primary-light);
+            --bg-secondary: var(--bg-secondary-light);
+            --bg-tertiary: var(--bg-tertiary-light);
+            --text-primary: var(--text-primary-light);
+            --border-color: var(--border-color-light);
+          }
+
+          [data-theme="dark"] {
+            --bg-primary: var(--bg-primary-dark);
+            --bg-secondary: var(--bg-secondary-dark);
+            --bg-tertiary: var(--bg-tertiary-dark);
+            --text-primary: var(--text-primary-dark);
+            --border-color: var(--border-color-dark);
+          }
+
+          body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.1s ease-in;
+          }
+
+          .flash-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+          }
+
+          .flash {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          }
+          .flash.success { background-color: #10b981; }
+          .flash.error { background-color: #ef4444; }
+          .flash.warning { background-color: #f59e0b; }
+        `;
+            document.head.appendChild(style);
+        })();
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet"/>
+</head>
+<body data-user-role="{{ session.get('role', 'user') }}">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+                {% for category, msg in messages %}
+                    <div class="flash {{ category }}">{{ msg }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block body %} {% endblock %}
+
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script>
+        // Auto-hide flash messages after 5 seconds
+        setTimeout(() => {
+            const flashes = document.querySelectorAll('.flash');
+            flashes.forEach(f => f.style.display = 'none');
+        }, 5000);
+    </script>
+</body>
+</html>
