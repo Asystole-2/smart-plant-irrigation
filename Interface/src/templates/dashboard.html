@@ -10,7 +10,6 @@
     <div class="liquid-blob blob-purple-2"></div>
     <div class="liquid-blob blob-accent"></div>
 </div>
-</div>
 
 <div class="mt-8 relative z-10">
     <div class="flex justify-between items-center mb-6">
@@ -21,7 +20,8 @@
 
     <div class="garden-row pb-10">
         {% for plant in plants %}
-        <div class="plant-card group relative" onclick="openPlantDetail({{ plant.id }}, '{{ plant.name }}')">
+        <div class="plant-card group relative"
+             onclick="openPlantDetail({{ plant.id }}, '{{ plant.name }}', '{{ plant.location or 'Lab' }}', '{{ plant.last_moisture or 0 }}', '{{ url_for('static', filename='uploads/' + (plant.image_url or 'default_plant.png')) }}')">
             <div class="relative overflow-hidden h-48">
                 <img src="{{ url_for('static', filename='uploads/' + (plant.image_url or 'default_plant.png')) }}"
                      class="plant-img transition-transform duration-700 group-hover:scale-110">
@@ -62,46 +62,66 @@
     </div>
 </div>
 
-<div id="plant-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-[2000] p-6">
-    <div class="glass-card max-w-lg mx-auto mt-10 p-8">
-        <div class="flex justify-between mb-6">
-            <h2 id="modal-title" class="text-2xl font-bold">Plant Settings</h2>
-            <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
-        </div>
-
-        <form id="photo-form" method="POST" enctype="multipart/form-data" class="mb-6">
-            <label class="block text-sm text-gray-400 mb-2">Change Photo</label>
-            <input type="file" name="photo" onchange="this.form.submit()" class="text-xs">
-        </form>
-
-        <div class="space-y-6">
-            <div>
-                <label class="block text-sm text-gray-400 mb-2">Auto-Watering Threshold</label>
-                <input type="range" class="w-full accent-blue-500" min="0" max="100">
-            </div>
-
-            <button class="w-full py-3 bg-blue-600 rounded-xl font-bold">Manual Water Now</button>
-
-            <div class="mt-8 p-4 bg-white/5 rounded-xl">
-                <h4 class="text-xs font-bold text-green-400 uppercase mb-2">AI Care Tips (Gemini)</h4>
-                <div id="ai-tips" class="text-sm text-gray-300 italic">Generating suggestions...</div>
-            </div>
-        </div>
-    </div>
-</div>
+{% include "components/plant_modal.html" %}
 
 <script>
-function openPlantDetail(id) {
-    document.getElementById('plant-modal').classList.remove('hidden');
+async function openPlantDetail(id, name, location, moisture, img) {
+    const modal = document.getElementById('plant-modal');
+    const modalImg = document.getElementById('modal-img');
+    const fallback = document.getElementById('modal-img-fallback');
+
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+    // Inject data
+    document.getElementById('modal-title').innerText = name;
+    document.getElementById('modal-location').innerText = location;
+    document.getElementById('modal-moisture').innerText = moisture + '%';
     document.getElementById('photo-form').action = "/update-plant-photo/" + id;
 
-    // Fetch AI Tips
-    fetch('/api/ai-tips/' + id)
-        .then(r => r.json())
-        .then(data => {
-            document.getElementById('ai-tips').innerText = data.tips;
-        });
+    // Handle Image Logic
+    fallback.classList.add('hidden');
+    modalImg.classList.remove('hidden');
+    modalImg.src = img;
+
+    // Reset AI text
+    document.querySelectorAll('.ai-content-compact').forEach(p => p.innerText = "Synchronizing data...");
+
+    // Fetch AI Data
+    try {
+        const response = await fetch(`/api/ai-tips/${id}`);
+        const data = await response.json();
+        document.getElementById('ai-watering').innerText = data.watering;
+        document.getElementById('ai-lighting').innerText = data.lighting;
+        document.getElementById('ai-fertilization').innerText = data.fertilization;
+        document.getElementById('ai-other').innerText = data.other;
+    } catch (err) { console.error("AI Error", err); }
 }
-function closeModal() { document.getElementById('plant-modal').classList.add('hidden'); }
+
+function handleImgError() {
+    const modalImg = document.getElementById('modal-img');
+    const fallback = document.getElementById('modal-img-fallback');
+    modalImg.classList.add('hidden');
+    fallback.classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('plant-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function toggleAccordion(btn) {
+    const panel = btn.nextElementSibling;
+    const icon = btn.querySelector('.fa-plus');
+    const isOpen = panel.classList.contains('open');
+
+    document.querySelectorAll('.accordion-panel').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.fa-plus').forEach(i => i.style.transform = "rotate(0deg)");
+
+    if (!isOpen) {
+        panel.classList.add('open');
+        icon.style.transform = "rotate(45deg)";
+    }
+}
 </script>
 {% endblock %}

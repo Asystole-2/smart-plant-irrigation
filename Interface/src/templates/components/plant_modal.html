@@ -1,0 +1,79 @@
+<div id="plant-modal" class="fixed inset-0 bg-black/90 backdrop-blur-xl hidden z-[3000] p-4 md:p-8 overflow-y-auto">
+    <div class="max-w-4xl mx-auto min-h-full flex items-center">
+        <div class="glass-card w-full rounded-[2rem] border-white/10 overflow-hidden relative">
+
+            <button onclick="closeModal()" class="absolute top-6 right-6 z-50 text-gray-500 hover:text-white transition">
+                <i class="fas fa-times-circle text-2xl"></i>
+            </button>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12">
+                <div class="lg:col-span-5 p-6 bg-gradient-to-b from-white/[0.02] to-transparent">
+                    <div class="relative rounded-2xl overflow-hidden aspect-[4/5] mb-6 shadow-2xl bg-white/5 flex items-center justify-center">
+                        <img id="modal-img" src="" class="w-full h-full object-cover" onerror="handleImgError()">
+                        <div id="modal-img-fallback" class="hidden flex flex-col items-center">
+                            <i class="fas fa-leaf text-blue-500 text-5xl mb-2"></i>
+                            <p class="text-[8px] text-gray-500 uppercase tracking-widest">No Image yet</p>
+                        </div>
+
+                        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black to-transparent">
+                            <h2 id="modal-title" class="text-2xl font-black text-white tracking-tighter">--</h2>
+                            <p id="modal-location" class="text-blue-400 text-[10px] uppercase tracking-widest font-bold">--</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+                            <p class="text-[9px] text-gray-500 uppercase font-bold mb-0.5">Hydration</p>
+                            <span class="text-xl font-black text-white" id="modal-moisture">0%</span>
+                        </div>
+                        <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+                            <p class="text-[9px] text-gray-500 uppercase font-bold mb-0.5">Status</p>
+                            <span class="text-[10px] font-bold text-emerald-400" id="modal-status">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 p-6 lg:border-l border-white/5">
+                    <div class="flex items-center gap-3 mb-6">
+                        <i class="fas fa-sparkles text-purple-400 text-sm"></i>
+                        <h3 class="text-md font-bold text-white uppercase tracking-tight">Intelligence</h3>
+                    </div>
+
+                    <div class="space-y-2">
+                        {% set sections = [
+                            ('Hydration', 'fa-faucet-drip', 'watering'),
+                            ('Lighting', 'fa-sun', 'lighting'),
+                            ('Nutrients', 'fa-seedling', 'fertilization'),
+                            ('Care', 'fa-hand-sparkles', 'other')
+                        ] %}
+                        {% for title, icon, key in sections %}
+                        <div class="border border-white/5 bg-white/5 rounded-xl overflow-hidden">
+                            <button onclick="toggleAccordion(this)" class="w-full p-3.5 flex justify-between items-center text-xs font-medium hover:bg-white/5 transition">
+                                <span class="flex items-center gap-3"><i class="fas {{ icon }} opacity-40"></i> {{ title }}</span>
+                                <i class="fas fa-plus text-[8px] opacity-40 transition-transform"></i>
+                            </button>
+                            <div class="accordion-panel">
+                                <p class="ai-content-compact text-gray-400 text-[13px]" id="ai-{{ key }}">
+                                    Loading...
+                                </p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-6 flex gap-3">
+                        <button class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all">
+                            Water Now
+                        </button>
+                        <form id="photo-form" method="POST" enctype="multipart/form-data" class="flex-1">
+                            <label class="w-full py-3 bg-white/5 border border-white/10 text-white rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all flex items-center justify-center cursor-pointer hover:bg-white/10">
+                                <i class="fas fa-camera mr-2"></i> Photo
+                                <input type="file" name="photo" onchange="this.form.submit()" class="hidden">
+                            </label>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
