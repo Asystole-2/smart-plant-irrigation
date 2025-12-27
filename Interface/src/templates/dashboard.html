@@ -1,19 +1,59 @@
 {% extends "layout.html" %}
 {% block body %}
-<div class="mt-8">
-    <h1 class="text-3xl font-bold mb-2">My Garden</h1>
-    <p class="text-gray-400 mb-6">System: <span class="text-green-400">Optimal <i class="fas fa-check-circle"></i></span></p>
+<div class="liquid-bg">
+    <div class="liquid-blob blob-blue-1"></div>
+    <div class="liquid-blob blob-blue-2"></div>
+    <div class="liquid-blob blob-green-1"></div>
+    <div class="liquid-blob blob-green-2"></div>
+    <div class="liquid-blob blob-green-3"></div>
+    <div class="liquid-blob blob-purple-1"></div>
+    <div class="liquid-blob blob-purple-2"></div>
+    <div class="liquid-blob blob-accent"></div>
+</div>
+</div>
 
-    <div class="garden-row">
+<div class="mt-8 relative z-10">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-4xl font-black tracking-tighter text-white">My Garden</h1>
+        </div>
+    </div>
+
+    <div class="garden-row pb-10">
         {% for plant in plants %}
-        <div class="plant-card" onclick="window.location.href='/plant/{{ plant.id }}'">
-            <img src="{{ url_for('static', filename='uploads/' + (plant.image_url or 'default.jpg')) }}" class="plant-img">
-            <div class="p-5">
-                <h3 class="text-xl font-bold">{{ plant.name }}</h3>
-                <div class="flex justify-between items-center mt-4">
-                    <span class="text-blue-400 font-black">{{ plant.last_moisture or 0 }}%</span>
-                    <div class="h-1 w-24 bg-gray-800 rounded-full overflow-hidden">
-                        <div class="h-full bg-blue-500" style="width: {{ plant.last_moisture or 0 }}%"></div>
+        <div class="plant-card group relative" onclick="openPlantDetail({{ plant.id }}, '{{ plant.name }}')">
+            <div class="relative overflow-hidden h-48">
+                <img src="{{ url_for('static', filename='uploads/' + (plant.image_url or 'default_plant.png')) }}"
+                     class="plant-img transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#020617] to-transparent opacity-60"></div>
+
+                <div class="absolute top-4 right-4 status-pill bg-black/40 backdrop-blur-md border-white/10">
+                    <i class="fas fa-map-marker-alt text-[10px] mr-1"></i>
+                    <span class="text-[9px] uppercase tracking-widest">{{ plant.location or 'Lab' }}</span>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <h3 class="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">{{ plant.name }}</h3>
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1 mb-4">
+                    Last Sync: {{ plant.last_update.strftime('%H:%M') if plant.last_update else 'N/A' }}
+                </p>
+
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
+                        <span class="text-gray-400">Moisture</span>
+                        <span class="text-blue-400">{{ plant.last_moisture or 0 }}%</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                        <div class="h-full bg-gradient-to-r from-blue-600 to-cyan-400 shadow-[0_0_10px_#3b82f6] transition-all duration-1000"
+                             style="width: {{ plant.last_moisture or 0 }}%"></div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[9px] text-gray-500 uppercase tracking-tighter">Threshold: {{ plant.moisture_threshold }}%</span>
+                        <i class="fas fa-chevron-right text-blue-500 text-xs"></i>
                     </div>
                 </div>
             </div>
