@@ -19,18 +19,27 @@ body {
 }
 
 /* Horizontal Card Container */
-.garden-row {
-    display: flex;
-    overflow-x: auto;
+/* Replace garden-row with garden-grid */
+.garden-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr)); /* Mobile */
     gap: 1.5rem;
-    padding: 1rem 0 2rem 0;
-    scrollbar-width: none; /* Firefox */
 }
-.garden-row::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
-/* Clickable Glass Card */
+@media (min-width: 768px) {
+    .garden-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)); /* Tablet */
+    }
+}
+
+@media (min-width: 1280px) {
+    .garden-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)); /* Desktop */
+    }
+}
+
 .plant-card {
-    min-width: 300px;
+    width: 100%; /* Occupy full width of grid cell */
     background: rgba(30, 41, 59, 0.35);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(18px);
@@ -40,7 +49,6 @@ body {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
 }
-
 .plant-card:hover {
     transform: translateY(-10px);
     background: rgba(30, 41, 59, 0.45);
