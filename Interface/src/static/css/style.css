@@ -19,7 +19,6 @@ body {
 }
 
 /* Horizontal Card Container */
-/* Replace garden-row with garden-grid */
 .garden-grid {
     display: grid;
     grid-template-columns: repeat(1, minmax(0, 1fr)); /* Mobile */
